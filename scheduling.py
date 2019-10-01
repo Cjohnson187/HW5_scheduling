@@ -4,7 +4,6 @@ HW5 Scheduling
 Chris Johnson
 """
 import re
-from queue import Queue
 
 
 ###########################################################################
@@ -65,24 +64,34 @@ def print_current_process(current_time, current_process_id):
 def np_SJF(processes, current_time):
 
     if processes != {}:
-        processes_with_current_time = processes
-        ordered_processes = order(processes_with_current_time, "cpu_burst", "not_needed")
+        processes_with_current_time = dict(dict())
+        ordered_processes = order(processes, "cpu_burst", "not_needed")
 
         try:
             for keys in ordered_processes:
                 if ordered_processes[keys]["arrival_time"] <= current_time:
-                        print_current_process(current_time, ordered_processes[keys]['process_id'])
-                        new_current_time = current_time + ordered_processes[keys]['cpu_burst']
-                        del ordered_processes[keys]
-                        np_SJF(ordered_processes, new_current_time)
+                    processes_with_current_time[keys] = ordered_processes[keys]
+            sorted_processes_with_current_time = order(processes_with_current_time, "cpu_burst", "not_needed")
+            print_current_process(current_time, sorted_processes_with_current_time[1]['process_id'])
+            current_time += sorted_processes_with_current_time[1]['cpu_burst']
+
+            p_id_to_delete = sorted_processes_with_current_time[1]['process_id']
+            key_to_delete = None
+            for keys in processes:
+                if p_id_to_delete == processes[keys]['process_id']:
+                    key_to_delete = keys
+            del processes[key_to_delete]
+
+            np_SJF(processes, current_time)
+
 
         except Exception as e:
-            pass
-#            Todo -- ignore exception for "dictionary changed size during iteration"
-#            print('exception in sjf = ', e)
+            # TODO uncomment pass when finished
+            #pass
+            print('exception in sjf = ', e)
 
     else:
-        print("\n---   scheduling completed!   ---")
+        print("\n---   scheduling completed!   ---\n")
 
 
 #############################################################################
@@ -113,13 +122,15 @@ if __name__ == '__main__':
     processes = read_file(processes_file)
     processes_file.close()
 
-    queue = []
     current_time = 0
 
     np_SJF(processes, current_time)
 
+    current_time = 0
+
+
     if processes == {}:
-        print("cowabunga dude")
+        print("cowabunga dude!")
 
 
 
