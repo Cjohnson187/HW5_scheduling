@@ -20,39 +20,19 @@ def read_file(processes_file):
         line_read = stripped_line.split(",")
         process_key = int(re.sub('\D', '', line_read[0]))
 
-        '''
-        print('line_read = ', line_read)
-        print ('process_id 0 = ', line_read[0],
-            '\narrival_time 1= ', line_read[1],
-            '\npriority 2= ', line_read[2],
-            '\ncpu_burst 3= ', line_read[3])
-        '''
-
-        r_processes[process_key] = {
-                                    'process_id' : line_read[0],
-                                    'arrival_time' : int(line_read[1]),
-                                    'priority' : int(line_read[2]),
-                                    'cpu_burst' : int(line_read[3])
-                                    }
+        r_processes[process_key] = { 'process_id'   : line_read[0],
+                                     'arrival_time' : int(line_read[1]),
+                                     'priority'     : int(line_read[2]),
+                                     'cpu_burst'    : int(line_read[3]) }
 
     for keys in r_processes:
         print(r_processes[keys]['process_id'], ",",
               r_processes[keys]['arrival_time'], ",",
               r_processes[keys]['priority'], ",",
-              r_processes[keys]['cpu_burst'] )
-
+              r_processes[keys]['cpu_burst'])
+    print()
     return r_processes
 
-###############################################################################
-#
-#
-#   TODO method to print output of each scheduling process ->
-#   ---Scheduling results of <name of the scheduling algorithm>
-#   At time <…> ms, CPU starts running process <process ID>,
-#   at time <…> ms, CPU starts running process <process ID>,
-#   at time <…> ms, CPU starts running process <process ID>,
-#
-#
 ###############################################################################
 
 
@@ -60,24 +40,14 @@ def order(processes, val_to_sort, high_low):
 
     ordered_processes = dict(dict())
 
-    if high_low == "highest_first" :
+    if high_low == " -highest_first- " :
         ordered_list_of_keys = sorted(processes.keys(), key=lambda k: processes[k][val_to_sort], reverse = True)
-        #print("highest first")
+        print("highest first")
     else:
         ordered_list_of_keys = sorted(processes.keys(), key=lambda k: processes[k][val_to_sort])
-    '''
-    #print("new_dict   =   ", ordered_list_of_keys)
-    #print('val to  sort = ', val_to_sort)
-    #print("new_dict 2 priority  =   ", ordered_list_of_keys[2])
-    '''
 
     for i in range(len(processes)):
         ordered_processes[i+1] = processes[ordered_list_of_keys[i]]
-    '''
-    print('ordered processes new dict = ', ordered_processes)
-    for keys1 in ordered_processes:
-        print (val_to_sort,' = ', ordered_processes[keys1]["process_id"], ordered_processes[keys1][val_to_sort])
-    '''
 
     return ordered_processes
 
@@ -85,38 +55,34 @@ def order(processes, val_to_sort, high_low):
 ############################################################################
 
 
-def print_process(current_time, current_process_id):
+def print_current_process(current_time, current_process_id):
     print('At time ', current_time,  ' ms', 'CPU starts running process ', current_process_id, ',')
 
 
 #################################################################
 
-# TODO non preemptive short job first  (SJF)
 
-def np_SJF(processes, queue, current_time):
+def np_SJF(processes, current_time):
 
-    new_processes = dict(dict())
-    final_ordered_processes = dict(dict())
-    sorted_processes_with_current_time = dict(dict())
+    if processes != {}:
+        processes_with_current_time = processes
+        ordered_processes = order(processes_with_current_time, "cpu_burst", "not_needed")
 
-    processes_with_current_time = processes
-    processes_after_process_pop = processes
+        try:
+            for keys in ordered_processes:
+                if ordered_processes[keys]["arrival_time"] <= current_time:
+                        print_current_process(current_time, ordered_processes[keys]['process_id'])
+                        new_current_time = current_time + ordered_processes[keys]['cpu_burst']
+                        del ordered_processes[keys]
+                        np_SJF(ordered_processes, new_current_time)
 
-    #current_time = 0
+        except Exception as e:
+            pass
+#            Todo -- ignore exception for "dictionary changed size during iteration"
+#            print('exception in sjf = ', e)
 
-    for keys in processes:
-        if processes[keys]["cpu_burst"] <= current_time:
-            processes_with_current_time[keys] = processes[keys]
-            del processes[keys]
-#            sorted_processes_with_current_time = order(processes_with_current_time, "cpu_burst", "not_needed")
-
-    if len(processes_with_current_time) > 1:
-        final_ordered_processes = order(processes_with_current_time, "cpu_burst", "not_needed")
-
-    for keys in final_ordered_processes:
-        print()
-
-
+    else:
+        print("\n---   scheduling completed!   ---")
 
 
 #############################################################################
@@ -124,7 +90,7 @@ def np_SJF(processes, queue, current_time):
 
 # TODO non preemptive priority scheduling
 
-def np_Preemptive_scheduling(processes):
+def np_preemptive_scheduling(processes):
     print("in np_pre_pri_sched")
 
 
@@ -150,13 +116,13 @@ if __name__ == '__main__':
     queue = []
     current_time = 0
 
-
+    np_SJF(processes, current_time)
 
     if processes == {}:
         print("cowabunga dude")
 
-    sorted_processes = order(processes, "cpu_burst", "highest_firs")
-    print("size of processes dict = ", len(sorted_processes))
-    #del sorted_processes[2]
-    for keys in sorted_processes:
-        print("keys = ", keys, " | sorted process key = ", sorted_processes[keys])
+
+
+
+
+    # TODO run on class server
