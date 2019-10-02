@@ -4,6 +4,7 @@ HW5 Scheduling
 Chris Johnson
 """
 import re
+from collections import deque
 
 
 ###########################################################################
@@ -41,7 +42,6 @@ def order(processes, val_to_sort, high_low):
 
     if high_low == "highest_first" :
         ordered_list_of_keys = sorted(processes.keys(), key=lambda k: processes[k][val_to_sort], reverse = True)
-        #print("highest first")
     else:
         ordered_list_of_keys = sorted(processes.keys(), key=lambda k: processes[k][val_to_sort])
 
@@ -84,11 +84,9 @@ def np_SJF(processes, current_time):
 
             np_SJF(processes, current_time)
 
-
         except Exception as e:
-            # TODO uncomment pass when finished
-            #pass
-            print('exception in sjf = ', e)
+            pass
+#            print('exception in sjf = ', e)
 
     else:
         print("\n---   scheduling completed!   ---\n")
@@ -96,8 +94,6 @@ def np_SJF(processes, current_time):
 
 #############################################################################
 
-
-# TODO non preemptive priority scheduling
 
 def np_priority_scheduling(processes, current_time):
     if processes != {}:
@@ -132,11 +128,9 @@ def np_priority_scheduling(processes, current_time):
 
             np_priority_scheduling(processes, current_time)
 
-
         except Exception as e:
-            # TODO uncomment pass when finished
-            #pass
-            print('exception in sjf = ', e)
+            pass
+#            print('exception in sjf = ', e)
 
     else:
         print("\n---   scheduling completed!   ---\n")
@@ -145,15 +139,65 @@ def np_priority_scheduling(processes, current_time):
 ##############################################################################
 
 
-# TODO Round Robin (RR) scheduling (10 milliseconds)
+def round_robin(processes, current_time, q, quantum):
 
-def round_robin(processes):
-    print("in round robin")
+    ordered_processes = dict(dict())
+    new_ordered_processes = dict(dict())
+    second_check = False
+
+    if processes != {}:
+        ordered_processes = order(processes, "arrival_time", "not_needed")
+        if ordered_processes[1]['arrival_time'] <= current_time:
+            q.append(ordered_processes[1])
+            del ordered_processes[1]
+
+    current_process = q.popleft()
+
+    print_current_process(current_time, current_process['process_id'])
+
+    if current_process['cpu_burst'] > quantum:
+        current_process['cpu_burst'] -= quantum
+        current_time += quantum
+
+        if ordered_processes != {}:
+            new_ordered_processes = order(ordered_processes, "arrival_time", "not_needed")
+            if new_ordered_processes[1]['arrival_time'] <= current_time:
+                q.append(new_ordered_processes[1])
+                del new_ordered_processes[1]
+                second_check = True
+        q.append(current_process)
+
+    elif current_process['cpu_burst'] < quantum:
+        current_time += quantum
+
+        if ordered_processes != {}:
+            new_ordered_processes = order(ordered_processes, "arrival_time", "not_needed")
+            if new_ordered_processes[1]['arrival_time'] <= current_time:
+                q.append(new_ordered_processes[1])
+                del new_ordered_processes[1]
+                second_check = True
+
+    elif current_process['cpu_burst'] == quantum:
+        current_time += quantum
+
+        if ordered_processes != {}:
+            new_ordered_processes = order(ordered_processes, "arrival_time", "not_needed")
+            if new_ordered_processes[1]['arrival_time'] <= current_time:
+                q.append(new_ordered_processes[1])
+                del new_ordered_processes[1]
+                second_check = True
+
+    if len(q) > 0 and second_check == True:
+        round_robin(new_ordered_processes, current_time, q, quantum)
+    elif len(q) > 0 and second_check == False:
+        round_robin(ordered_processes, current_time, q, quantum)
+
+    else:
+        print("\n---   scheduling completed!   ---\n")
+
 
 ################################################################################
 
-
-# TODO run on class server
 
 if __name__ == '__main__':
 
@@ -170,10 +214,14 @@ if __name__ == '__main__':
     current_time_p = 0
     np_priority_scheduling(processes_priority, current_time_p)
 
+    current_time_RR = 0
+    quantum = 10
+    q = deque()
+
+    round_robin(processes_RR, current_time_RR, q,  quantum)
 
     if processes == {}:
         print("cowabunga dude!")
 
 
-
-    # TODO run on class server
+#     TODO run on class server

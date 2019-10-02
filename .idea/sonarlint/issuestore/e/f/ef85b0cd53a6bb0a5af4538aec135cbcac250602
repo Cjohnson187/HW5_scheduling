@@ -1,0 +1,5 @@
+
+>python:S125„"Remove this commented out code.(ÃÓôÅ8¼ÓùÕØ-
+xpython:S3776g"TRefactor this function to reduce its Cognitive Complexity from 22 to the 15 allowed.(¬Ô¬—ûÿÿÿÿ8äÏ´ÒØ-
+spython:S1542A"ORename function "np_SJF" to match the regular expression ^[a-z_][a-z0-9_]{2,}$.(ä„ŒÜşÿÿÿÿ8äÏ´ÒØ-
+dpython:S1481™"?Remove the unused local variable "processes_with_current_time".(ÏÉëşÿÿÿÿ8ŠŒ•ÙØ-
