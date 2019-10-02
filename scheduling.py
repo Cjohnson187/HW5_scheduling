@@ -39,9 +39,9 @@ def order(processes, val_to_sort, high_low):
 
     ordered_processes = dict(dict())
 
-    if high_low == " -highest_first- " :
+    if high_low == "highest_first" :
         ordered_list_of_keys = sorted(processes.keys(), key=lambda k: processes[k][val_to_sort], reverse = True)
-        print("highest first")
+        #print("highest first")
     else:
         ordered_list_of_keys = sorted(processes.keys(), key=lambda k: processes[k][val_to_sort])
 
@@ -55,7 +55,7 @@ def order(processes, val_to_sort, high_low):
 
 
 def print_current_process(current_time, current_process_id):
-    print('At time ', current_time,  ' ms', 'CPU starts running process ', current_process_id, ',')
+    print('At time ', current_time,  ' ms', 'CPU starts running process', current_process_id, ',')
 
 
 #################################################################
@@ -99,8 +99,47 @@ def np_SJF(processes, current_time):
 
 # TODO non preemptive priority scheduling
 
-def np_preemptive_scheduling(processes):
-    print("in np_pre_pri_sched")
+def np_priority_scheduling(processes, current_time):
+    if processes != {}:
+        processes_with_current_time = dict(dict())
+        ordered_processes = order(processes, "cpu_burst", "highest_first")
+        new_sorted_processes_with_current_time = dict(dict())
+
+        try:
+            for keys in ordered_processes:
+                if ordered_processes[keys]["arrival_time"] <= current_time:
+                    processes_with_current_time[keys] = ordered_processes[keys]
+
+            sorted_processes_with_current_time = order(processes_with_current_time, "priority", "highest_first")
+
+            priority_value = sorted_processes_with_current_time[1]["priority"]
+            for keys in sorted_processes_with_current_time:
+                if sorted_processes_with_current_time[keys]["priority"] == priority_value:
+                    new_sorted_processes_with_current_time[keys] = sorted_processes_with_current_time[keys]
+
+            if len(new_sorted_processes_with_current_time) > 1 and new_sorted_processes_with_current_time != {}:
+                sorted_processes_with_current_time = order(new_sorted_processes_with_current_time, "arrival_time", " ! highest_first")
+
+            print_current_process(current_time, sorted_processes_with_current_time[1]['process_id'])
+            current_time += sorted_processes_with_current_time[1]['cpu_burst']
+
+            p_id_to_delete = sorted_processes_with_current_time[1]['process_id']
+            key_to_delete = None
+            for keys in processes:
+                if p_id_to_delete == processes[keys]['process_id']:
+                    key_to_delete = keys
+            del processes[key_to_delete]
+
+            np_priority_scheduling(processes, current_time)
+
+
+        except Exception as e:
+            # TODO uncomment pass when finished
+            #pass
+            print('exception in sjf = ', e)
+
+    else:
+        print("\n---   scheduling completed!   ---\n")
 
 
 ##############################################################################
@@ -122,17 +161,18 @@ if __name__ == '__main__':
     processes = read_file(processes_file)
     processes_file.close()
 
-    current_time = 0
+    processes_priority = processes.copy()
+    processes_RR = processes.copy()
 
-    np_SJF(processes, current_time)
+    current_time_sjf = 0
+    np_SJF(processes, current_time_sjf)
 
-    current_time = 0
+    current_time_p = 0
+    np_priority_scheduling(processes_priority, current_time_p)
 
 
     if processes == {}:
         print("cowabunga dude!")
-
-
 
 
 
