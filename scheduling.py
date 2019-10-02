@@ -168,7 +168,7 @@ def round_robin(processes, current_time, q, quantum):
         q.append(current_process)
 
     elif current_process['cpu_burst'] < quantum:
-        current_time += quantum
+        current_time += current_process['cpu_burst']
 
         if ordered_processes != {}:
             new_ordered_processes = order(ordered_processes, "arrival_time", "not_needed")
