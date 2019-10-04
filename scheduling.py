@@ -88,17 +88,15 @@ def np_SJF(processes, current_time):
 
         except Exception as e:
             pass
-#            print('exception in sjf = ', e)
 
     else:
-        print("\n---   scheduling completed!   ---\n")
+        pass
 
 
 #############################################################################
 
 
 def np_priority_scheduling(processes, current_time):
-    print('in priority')
     if processes != {}:
         processes_with_current_time = dict(dict())
         ordered_processes = order(processes, "priority", "highest_first")
@@ -133,10 +131,9 @@ def np_priority_scheduling(processes, current_time):
 
         except Exception as e:
             pass
-#            print('exception in sjf = ', e)
 
     else:
-        print("\n---   scheduling completed!   ---\n")
+        pass
 
 
 ##############################################################################
@@ -195,19 +192,20 @@ if __name__ == '__main__':
     processes_RR = processes.copy()
 
     current_time_sjf = 0
+    print('---Scheduling results of non preemptive Shortest Job First')
     np_SJF(processes, current_time_sjf)
+    print('---End of the results of non preemptive Shortest Job First\n')
+
 
     current_time_p = 0
+    print('---Scheduling results of non preemptive Priority')
     np_priority_scheduling(processes_priority, current_time_p)
+    print('---End of the results of non preemptive Priority\n')
 
     current_time_RR = 0
     quantum = 10
     que = deque()
     buffer = deque()
+    print('---Scheduling results of Round Robin')
     round_robin(processes_RR, current_time_RR, que,  quantum, buffer)
-
-    if processes == {}:
-        print("cowabunga dude!")
-
-
-#     TODO run on class server
+    print('---End of the results of Round Robin\n')
