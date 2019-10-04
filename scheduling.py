@@ -33,6 +33,7 @@ def read_file(processes_file):
     print()
     return r_processes
 
+
 ###############################################################################
 
 
@@ -62,6 +63,7 @@ def print_current_process(current_time, current_process_id):
 
 
 def np_SJF(processes, current_time):
+
 
     if processes != {}:
         processes_with_current_time = dict(dict())
@@ -96,9 +98,10 @@ def np_SJF(processes, current_time):
 
 
 def np_priority_scheduling(processes, current_time):
+    print('in priority')
     if processes != {}:
         processes_with_current_time = dict(dict())
-        ordered_processes = order(processes, "cpu_burst", "highest_first")
+        ordered_processes = order(processes, "priority", "highest_first")
         new_sorted_processes_with_current_time = dict(dict())
 
         try:
@@ -134,6 +137,7 @@ def np_priority_scheduling(processes, current_time):
 
     else:
         print("\n---   scheduling completed!   ---\n")
+
 
 ##############################################################################
 
@@ -180,6 +184,7 @@ def round_robin(processes, current_time, que, quantum, buffer):
 
 ###############################################################################
 
+
 if __name__ == '__main__':
 
     processes_file = open('processes.txt', 'r')
@@ -199,7 +204,6 @@ if __name__ == '__main__':
     quantum = 10
     que = deque()
     buffer = deque()
-
     round_robin(processes_RR, current_time_RR, que,  quantum, buffer)
 
     if processes == {}:
