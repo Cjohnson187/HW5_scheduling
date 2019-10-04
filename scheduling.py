@@ -10,7 +10,7 @@ from collections import deque
 ###########################################################################
 
 
-def read_file(processes_file):
+def read_file(processes_file, output_file):
 
     r_processes = dict(dict())
 
@@ -26,11 +26,11 @@ def read_file(processes_file):
                                      'cpu_burst'    : int(line_read[3]) }
 
     for keys in r_processes:
-        print(r_processes[keys]['process_id'], ",",
-              r_processes[keys]['arrival_time'], ",",
-              r_processes[keys]['priority'], ",",
-              r_processes[keys]['cpu_burst'])
-    print()
+        output_file.write(str(r_processes[keys]['process_id'])+ ","+
+              str(r_processes[keys]['arrival_time'])+ ","+
+              str(r_processes[keys]['priority'])+ ","+
+              str(r_processes[keys]['cpu_burst'])+ "\n")
+    output_file.write('\n')
     return r_processes
 
 
@@ -55,15 +55,14 @@ def order(processes, val_to_sort, high_low):
 ############################################################################
 
 
-def print_current_process(current_time, current_process_id):
-    print('At time ', current_time,  ' ms', 'CPU starts running process', current_process_id, ',')
+def print_current_process(current_time, current_process_id, output_file):
+    output_file.write('At time '+ str(current_time)+  ' ms '+ 'CPU starts running process '+ current_process_id+ ',\n')
 
 
 #################################################################
 
 
-def np_SJF(processes, current_time):
-
+def np_SJF(processes, current_time, output_file):
 
     if processes != {}:
         processes_with_current_time = dict(dict())
@@ -74,7 +73,7 @@ def np_SJF(processes, current_time):
                 if ordered_processes[keys]["arrival_time"] <= current_time:
                     processes_with_current_time[keys] = ordered_processes[keys]
             sorted_processes_with_current_time = order(processes_with_current_time, "cpu_burst", "not_needed")
-            print_current_process(current_time, sorted_processes_with_current_time[1]['process_id'])
+            print_current_process(current_time, sorted_processes_with_current_time[1]['process_id'], output_file)
             current_time += sorted_processes_with_current_time[1]['cpu_burst']
 
             p_id_to_delete = sorted_processes_with_current_time[1]['process_id']
@@ -84,10 +83,11 @@ def np_SJF(processes, current_time):
                     key_to_delete = keys
             del processes[key_to_delete]
 
-            np_SJF(processes, current_time)
+            np_SJF(processes, current_time, output_file)
 
         except Exception as e:
-            pass
+            print('exception = ', e)
+            #pass
 
     else:
         pass
@@ -96,7 +96,7 @@ def np_SJF(processes, current_time):
 #############################################################################
 
 
-def np_priority_scheduling(processes, current_time):
+def np_priority_scheduling(processes, current_time, output_file):
     if processes != {}:
         processes_with_current_time = dict(dict())
         ordered_processes = order(processes, "priority", "highest_first")
@@ -117,7 +117,7 @@ def np_priority_scheduling(processes, current_time):
             if len(new_sorted_processes_with_current_time) > 1 and new_sorted_processes_with_current_time != {}:
                 sorted_processes_with_current_time = order(new_sorted_processes_with_current_time, "arrival_time", " ! highest_first")
 
-            print_current_process(current_time, sorted_processes_with_current_time[1]['process_id'])
+            print_current_process(current_time, sorted_processes_with_current_time[1]['process_id'], output_file)
             current_time += sorted_processes_with_current_time[1]['cpu_burst']
 
             p_id_to_delete = sorted_processes_with_current_time[1]['process_id']
@@ -127,9 +127,10 @@ def np_priority_scheduling(processes, current_time):
                     key_to_delete = keys
             del processes[key_to_delete]
 
-            np_priority_scheduling(processes, current_time)
+            np_priority_scheduling(processes, current_time, output_file)
 
         except Exception as e:
+            print('exception = ', e)
             pass
 
     else:
@@ -139,7 +140,7 @@ def np_priority_scheduling(processes, current_time):
 ##############################################################################
 
 
-def round_robin(processes, current_time, que, quantum, buffer):
+def round_robin(processes, current_time, que, quantum, buffer, output_file):
 
     keys_to_delete = []
     processes_with_current_time = dict(dict())
@@ -164,7 +165,7 @@ def round_robin(processes, current_time, que, quantum, buffer):
 
     if que:
         current_process = que.popleft()
-        print_current_process(current_time, current_process['process_id'])
+        print_current_process(current_time, current_process['process_id'], output_file)
 
         if current_process['cpu_burst'] == quantum:
             current_time += quantum
@@ -176,7 +177,7 @@ def round_robin(processes, current_time, que, quantum, buffer):
             buffer.append(current_process)
 
     if que or buffer or processes:
-        round_robin(ordered_processes, current_time, que, quantum, buffer)
+        round_robin(ordered_processes, current_time, que, quantum, buffer, output_file)
 
 
 ###############################################################################
@@ -184,28 +185,31 @@ def round_robin(processes, current_time, que, quantum, buffer):
 
 if __name__ == '__main__':
 
+    output_file = open('testResults.txt', 'w+')
+
     processes_file = open('processes.txt', 'r')
-    processes = read_file(processes_file)
+    processes = read_file(processes_file, output_file)
     processes_file.close()
 
     processes_priority = processes.copy()
     processes_RR = processes.copy()
 
     current_time_sjf = 0
-    print('---Scheduling results of non preemptive Shortest Job First')
-    np_SJF(processes, current_time_sjf)
-    print('---End of the results of non preemptive Shortest Job First\n')
-
+    output_file.write('---Scheduling results of non preemptive Shortest Job First\n')
+    np_SJF(processes, current_time_sjf, output_file)
+    output_file.write('---End of the results of non preemptive Shortest Job First\n\n')
 
     current_time_p = 0
-    print('---Scheduling results of non preemptive Priority')
-    np_priority_scheduling(processes_priority, current_time_p)
-    print('---End of the results of non preemptive Priority\n')
+    output_file.write('---Scheduling results of non preemptive Priority\n')
+    np_priority_scheduling(processes_priority, current_time_p, output_file)
+    output_file.write('---End of the results of non preemptive Priority\n\n')
 
     current_time_RR = 0
     quantum = 10
     que = deque()
     buffer = deque()
-    print('---Scheduling results of Round Robin')
-    round_robin(processes_RR, current_time_RR, que,  quantum, buffer)
-    print('---End of the results of Round Robin\n')
+    output_file.write('---Scheduling results of Round Robin\n')
+    round_robin(processes_RR, current_time_RR, que,  quantum, buffer, output_file)
+    output_file.write('---End of the results of Round Robin\n\n')
+
+    output_file.close()

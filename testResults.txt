@@ -1,0 +1,39 @@
+p1,0,1,15
+p2,0,3,20
+p3,20,4,20
+p4,25,4,20
+p5,45,5,5
+p6,55,5,15
+
+---Scheduling results of non preemptive Shortest Job First
+At time 0 ms CPU starts running process p1,
+At time 15 ms CPU starts running process p2,
+At time 35 ms CPU starts running process p3,
+At time 55 ms CPU starts running process p5,
+At time 60 ms CPU starts running process p6,
+At time 75 ms CPU starts running process p4,
+---End of the results of non preemptive Shortest Job First
+
+---Scheduling results of non preemptive Priority
+At time 0 ms CPU starts running process p2,
+At time 20 ms CPU starts running process p3,
+At time 40 ms CPU starts running process p4,
+At time 60 ms CPU starts running process p5,
+At time 65 ms CPU starts running process p6,
+At time 80 ms CPU starts running process p1,
+---End of the results of non preemptive Priority
+
+---Scheduling results of Round Robin
+At time 0 ms CPU starts running process p1,
+At time 10 ms CPU starts running process p2,
+At time 20 ms CPU starts running process p1,
+At time 25 ms CPU starts running process p3,
+At time 35 ms CPU starts running process p2,
+At time 45 ms CPU starts running process p4,
+At time 55 ms CPU starts running process p3,
+At time 65 ms CPU starts running process p5,
+At time 70 ms CPU starts running process p6,
+At time 80 ms CPU starts running process p4,
+At time 90 ms CPU starts running process p6,
+---End of the results of Round Robin
+
