@@ -135,69 +135,50 @@ def np_priority_scheduling(processes, current_time):
     else:
         print("\n---   scheduling completed!   ---\n")
 
-
 ##############################################################################
 
 
-def round_robin(processes, current_time, q, quantum):
+def round_robin(processes, current_time, que, quantum, buffer):
 
+    keys_to_delete = []
+    processes_with_current_time = dict(dict())
     ordered_processes = dict(dict())
-    new_ordered_processes = dict(dict())
-    second_check = False
 
-    if processes != {}:
+    if processes:
         ordered_processes = order(processes, "arrival_time", "not_needed")
-        if ordered_processes[1]['arrival_time'] <= current_time:
-            q.append(ordered_processes[1])
-            del ordered_processes[1]
 
-    current_process = q.popleft()
+    for keys in ordered_processes:
+        if ordered_processes[keys]["arrival_time"] <= current_time:
+            processes_with_current_time[keys] = ordered_processes[keys]
+            keys_to_delete.append(keys)
 
-    print_current_process(current_time, current_process['process_id'])
+    for items in keys_to_delete:
+        del ordered_processes[items]
 
-    if current_process['cpu_burst'] > quantum:
-        current_process['cpu_burst'] -= quantum
-        current_time += quantum
+    for keys in processes_with_current_time:
+        que.append(processes_with_current_time[keys])
 
-        if ordered_processes != {}:
-            new_ordered_processes = order(ordered_processes, "arrival_time", "not_needed")
-            if new_ordered_processes[1]['arrival_time'] <= current_time:
-                q.append(new_ordered_processes[1])
-                del new_ordered_processes[1]
-                second_check = True
-        q.append(current_process)
+    while buffer:
+        que.append(buffer.popleft())
 
-    elif current_process['cpu_burst'] < quantum:
-        current_time += current_process['cpu_burst']
+    if que:
+        current_process = que.popleft()
+        print_current_process(current_time, current_process['process_id'])
 
-        if ordered_processes != {}:
-            new_ordered_processes = order(ordered_processes, "arrival_time", "not_needed")
-            if new_ordered_processes[1]['arrival_time'] <= current_time:
-                q.append(new_ordered_processes[1])
-                del new_ordered_processes[1]
-                second_check = True
+        if current_process['cpu_burst'] == quantum:
+            current_time += quantum
+        elif current_process['cpu_burst'] <= quantum:
+            current_time += current_process['cpu_burst']
+        elif current_process['cpu_burst'] >= quantum:
+            current_process['cpu_burst'] -= quantum
+            current_time += quantum
+            buffer.append(current_process)
 
-    elif current_process['cpu_burst'] == quantum:
-        current_time += quantum
-
-        if ordered_processes != {}:
-            new_ordered_processes = order(ordered_processes, "arrival_time", "not_needed")
-            if new_ordered_processes[1]['arrival_time'] <= current_time:
-                q.append(new_ordered_processes[1])
-                del new_ordered_processes[1]
-                second_check = True
-
-    if len(q) > 0 and second_check == True:
-        round_robin(new_ordered_processes, current_time, q, quantum)
-    elif len(q) > 0 and second_check == False:
-        round_robin(ordered_processes, current_time, q, quantum)
-
-    else:
-        print("\n---   scheduling completed!   ---\n")
+    if que or buffer or processes:
+        round_robin(ordered_processes, current_time, que, quantum, buffer)
 
 
-################################################################################
-
+###############################################################################
 
 if __name__ == '__main__':
 
@@ -216,9 +197,10 @@ if __name__ == '__main__':
 
     current_time_RR = 0
     quantum = 10
-    q = deque()
+    que = deque()
+    buffer = deque()
 
-    round_robin(processes_RR, current_time_RR, q,  quantum)
+    round_robin(processes_RR, current_time_RR, que,  quantum, buffer)
 
     if processes == {}:
         print("cowabunga dude!")
